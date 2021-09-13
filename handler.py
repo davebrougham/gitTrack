@@ -1,21 +1,20 @@
 import json
+import logging as log
 import boto3
 import requests
-
-def handler(event, context):
+def handler():
+# def handler(event, context):
     # Set of Repos to look for metadata
     frameworks = [
-        'serverless/serverless', 
-        'miserlou/zappa', 
-        'apex/apex', 
-        'aws-amplify/amplify-js', 
-        'awslabs/serverless-application-model', 
-        'jorgebastida/gordon',
-        'mweagle/Sparta',
+        'bitcoin/bitcoin', 
+        'ethereum/go-ethereum', 
+        'solana-labs/solana', 
+        'onflow/flow-nft',
     ]
     # Request data from the GitHub API
     results = []
     for framework in frameworks:
+
         r = requests.get('https://api.github.com/repos/' + framework)
         data = json.loads(r.text)
         framework_stats = {
@@ -25,7 +24,9 @@ def handler(event, context):
             "forks_count": data["forks_count"],
         }
         results.append(framework_stats)
+    log.info("Results: ", results)
     json_result = json.dumps(results)
+    print(json_result)
     # Output data to S3 file
     s3 = boto3.client('s3')
     s3.put_object(
@@ -37,3 +38,5 @@ def handler(event, context):
     print("RESULTS:")
     print(results)
     return "Success"
+
+handler()
